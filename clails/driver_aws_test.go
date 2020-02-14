@@ -13,9 +13,23 @@ func TestGenerateStagingModel(t *testing.T) {
 	assert.NoError(t, err)
 
 	// When
-	model, err := driver.GenerateModel(project)
+	_, model, err := driver.GenerateModel(project)
 	assert.NoError(t, err)
 
 	// Then
 	assert.NotNil(t, model["staging"])
+}
+
+func TestGenerateMonitoringModel(t *testing.T) {
+	// Given
+	driver := &clails.AwsDriver{}
+	project, err := clails.LoadProjectFromYmlFile("../samples/kafka-ami.yml")
+	assert.NoError(t, err)
+
+	// When
+	model, _, err := driver.GenerateModel(project)
+	assert.NoError(t, err)
+
+	// Then
+	assert.NotEmpty(t, model)
 }

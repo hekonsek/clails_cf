@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/hekonsek/clails/clails"
-	"github.com/hekonsek/clails/util"
+	"github.com/hekonsek/osexit"
 	"github.com/spf13/cobra"
 )
 
@@ -16,10 +16,12 @@ var GenerateCommand = &cobra.Command{
 	Short: "deploy into a cloud",
 	Run: func(cmd *cobra.Command, args []string) {
 		project, err := clails.LoadProjectFromYmlFile("clails.yml")
-		util.CliError(err)
-		templates, err := (&clails.AwsDriver{}).Generate(project)
-		util.CliError(err)
+		osexit.ExitOnError(err)
+		monitoring, templates, err := (&clails.AwsDriver{}).Generate(project)
+		osexit.ExitOnError(err)
 
-		fmt.Println(templates)
+		fmt.Println(monitoring)
+		fmt.Println()
+		fmt.Println(templates["staging"])
 	},
 }
