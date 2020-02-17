@@ -1,11 +1,29 @@
 package clails
 
-import "gopkg.in/yaml.v2"
+import (
+	"errors"
+	"gopkg.in/yaml.v2"
+)
 
 type AwsDriver struct {
 }
 
-func (*AwsDriver) Validate(*Project) error {
+func NewAwsDriver() *AwsDriver {
+	return &AwsDriver{}
+}
+
+func (*AwsDriver) Validate(project *Project) error {
+	for _, service := range project.Services {
+		if service.Type == "kafka" {
+			if service.Distribution == "" {
+				service.Distribution = "ami"
+			}
+			if service.Distribution != "ami" {
+				return errors.New("unknown Kafka service type: " + service.Distribution)
+			}
+		}
+	}
+
 	return nil
 }
 
