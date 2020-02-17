@@ -22,6 +22,8 @@ var GenerateCommand = &cobra.Command{
 
 		fmt.Println(monitoring)
 		fmt.Println()
-		fmt.Println(templates["staging"])
+		for _, template := range templates {
+			fmt.Println(template)
+		}
 	},
 }

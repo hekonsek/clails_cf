@@ -2,7 +2,7 @@
 
 Clails is an opinionated toolkit which takes simple project definition in YML file and generates complete cloud
  templates (like [AWS CloudFormation](https://aws.amazon.com/cloudformation)) from it. 
- Think "*[Rails](https://rubyonrails.org) but for cloud*".
+ Think "*[Rails](https://rubyonrails.org), but for cloud*".
  
 ## Usage
 
@@ -19,7 +19,10 @@ Then execute the following command in the same directory:
 ```
 $ clails deploy
 ```
- 
+
+The command above creates two environments (default `staging` and `production`) and monitoring machine including
+Prometheus server.
+
  ## License
  
  This project is distributed under [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).

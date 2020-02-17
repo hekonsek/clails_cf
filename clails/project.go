@@ -1,8 +1,9 @@
 package clails
 
 type Project struct {
-	Name     string
-	Services []*Service
+	Name         string
+	Environments []string
+	Services     []*Service
 }
 
 type Service struct {

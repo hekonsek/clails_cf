@@ -2,6 +2,7 @@ package clails
 
 import (
 	"errors"
+	"fmt"
 	"gopkg.in/yaml.v2"
 )
 
@@ -12,7 +13,13 @@ func NewAwsDriver() *AwsDriver {
 	return &AwsDriver{}
 }
 
+var defaultEnvironments = []string{"staging", "production"}
+
 func (*AwsDriver) Validate(project *Project) error {
+	if project.Environments == nil || len(project.Environments) == 0 {
+		project.Environments = defaultEnvironments
+	}
+
 	for _, service := range project.Services {
 		if service.Type == "kafka" {
 			if service.Distribution == "" {
@@ -34,7 +41,7 @@ func (driver *AwsDriver) GenerateModel(project *Project) (monitoring map[string]
 	}
 
 	templatesModels := map[string]interface{}{}
-	for _, env := range []string{"staging"} {
+	for _, env := range project.Environments {
 		resources := map[string]interface{}{}
 		templatesModels[env] = map[string]interface{}{
 			"Resources": resources,
@@ -43,7 +50,7 @@ func (driver *AwsDriver) GenerateModel(project *Project) (monitoring map[string]
 		for _, service := range project.Services {
 			if service.Type == "kafka" {
 				if service.Distribution == "ami" {
-					resources["KafkaServer"] = kafkaBackingServiceAmi(project)
+					resources["KafkaServer"] = kafkaBackingServiceAmi(project, env)
 				}
 			}
 		}
@@ -81,7 +88,7 @@ func (driver *AwsDriver) Generate(project *Project) (monitoring string, environm
 
 // Model generation
 
-func kafkaBackingServiceAmi(project *Project) map[string]interface{} {
+func kafkaBackingServiceAmi(project *Project, env string) map[string]interface{} {
 	return map[string]interface{}{
 		"Type": "AWS::EC2::Instance",
 		"Properties": map[string]interface{}{
@@ -89,7 +96,7 @@ func kafkaBackingServiceAmi(project *Project) map[string]interface{} {
 			"InstanceType": "m5.large",
 			"KeyName":      "default",
 			"Tags": []map[string]string{
-				{"Key": "Name", "Value": project.Name + "-staging-kafka-server"},
+				{"Key": "Name", "Value": fmt.Sprintf("%s-%s-kafka-server", project.Name, env)},
 			},
 		},
 	}

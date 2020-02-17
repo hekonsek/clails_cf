@@ -19,3 +19,18 @@ func TestValidationShouldDefaultToAmiKafka(t *testing.T) {
 	// Then
 	assert.Equal(t, "ami", project.Services[0].Distribution)
 }
+
+func TestValidationShouldDefaultToStagingAndProductionEnvironments(t *testing.T) {
+	// Given
+	driver := clails.NewAwsDriver()
+	project, err := clails.LoadProjectFromYmlFile("../samples/kafka.yml")
+	assert.NoError(t, err)
+
+	// When
+	err = driver.Validate(project)
+	assert.NoError(t, err)
+
+	// Then
+	assert.Len(t, project.Environments, 2)
+	assert.Equal(t, []string{"staging", "production"}, project.Environments)
+}
