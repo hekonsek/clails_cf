@@ -8,3 +8,9 @@ build: vendor
 
 test: vendor
 	GO111MODULE=on go test github.com/hekonsek/clails/clails
+
+docker-build: build
+	docker build . -t hekonsek/clails
+
+docker-push: docker-build
+	docker push hekonsek/clails

@@ -23,6 +23,15 @@ $ clails deploy
 The command above creates two environments (default `staging` and `production`) and monitoring machine including
 Prometheus server.
 
+## Installation
+
+The easiest way to install Clails is via DockerHub distributed image:
+
+```
+docker create --name clails hekonsek/clails
+docker cp clails:/clails /usr/bin/
+```
+
  ## License
  
  This project is distributed under [Apache 2.0 license](http://www.apache.org/licenses/LICENSE-2.0.html).
