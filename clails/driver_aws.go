@@ -109,7 +109,7 @@ func monitoringTemplate(project *Project) map[string]map[string]interface{} {
 		"MonitoringServer": {
 			"Type": "AWS::EC2::Instance",
 			"Properties": map[string]interface{}{
-				"ImageId":      "ami-0a3fb87f415c833b9",
+				"ImageId":      "ami-07a0a263711b54ac0",
 				"InstanceType": "m5.large",
 				"KeyName":      "default",
 				"Tags": []map[string]string{
