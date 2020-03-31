@@ -106,12 +106,38 @@ func monitoringTemplate(project *Project) map[string]map[string]interface{} {
 	roleName := project.Name + "-monitoring-ec2-read-access"
 	profileName := project.Name + "-monitoring-ec2"
 	return map[string]map[string]interface{}{
+		"MonitoringSecurityGroup": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": map[string]interface{}{
+				"GroupName":        project.Name + "-monitoring",
+				"GroupDescription": project.Name + "-monitoring",
+				"SecurityGroupIngress": []map[string]interface{}{
+					{
+						"IpProtocol": "tcp",
+						"FromPort":   9090,
+						"ToPort":     9090,
+						"CidrIp":     "0.0.0.0/0",
+					},
+					{
+						"IpProtocol": "tcp",
+						"FromPort":   3000,
+						"ToPort":     3000,
+						"CidrIp":     "0.0.0.0/0",
+					},
+				},
+			},
+		},
 		"MonitoringServer": {
 			"Type": "AWS::EC2::Instance",
 			"Properties": map[string]interface{}{
 				"ImageId":      "ami-07a0a263711b54ac0",
 				"InstanceType": "m5.large",
 				"KeyName":      "default",
+				"SecurityGroupIds": []interface{}{
+					map[string]string{
+						"Ref": "MonitoringSecurityGroup",
+					},
+				},
 				"Tags": []map[string]string{
 					{"Key": "Name", "Value": project.Name + "-monitoring"},
 				},

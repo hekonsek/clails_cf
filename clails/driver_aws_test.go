@@ -33,3 +33,18 @@ func TestGenerateMonitoringModel(t *testing.T) {
 	// Then
 	assert.NotEmpty(t, model)
 }
+
+func TestGenerateMonitoringSecurityGroup(t *testing.T) {
+	// Given
+	driver := &clails.AwsDriver{}
+	project, err := clails.LoadProjectFromYmlFile("../samples/kafka.yml")
+	assert.NoError(t, err)
+
+	// When
+	model, _, err := driver.GenerateModel(project)
+	assert.NoError(t, err)
+
+	// Then
+	resources := model["Resources"].(map[string]map[string]interface{})
+	assert.NotEmpty(t, resources["MonitoringSecurityGroup"])
+}
