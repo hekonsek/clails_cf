@@ -20,7 +20,7 @@ Then execute the following command in the same directory:
 $ clails deploy
 ```
 
-The command above creates two environments (default `staging` and `production`) and monitoring machine (including
+The command above creates two environments (default `staging` and `production`) and extra monitoring environment (including
 Prometheus and Grafana servers).
 
 ## Installation
