@@ -23,7 +23,13 @@ $ clails deploy
 The command above creates two environments (default `staging` and `production`) and extra monitoring environment (including
 Prometheus and Grafana servers).
 
-For more advanced usage scenarios see [Clails documentation](documentation.md).
+### Dry run deploy
+
+In order to generate CloudFormation template without creating an actual stack in AWS, use `--dry-run` option:
+
+```
+$ clails deploy --dry-run
+```
 
 ## Installation
 

@@ -1,4 +1,4 @@
-# github.com/aws/aws-sdk-go v1.30.0
+# github.com/aws/aws-sdk-go v1.30.2
 github.com/aws/aws-sdk-go/aws
 github.com/aws/aws-sdk-go/aws/awserr
 github.com/aws/aws-sdk-go/aws/awsutil
@@ -39,6 +39,8 @@ github.com/aws/aws-sdk-go/service/sts/stsiface
 github.com/davecgh/go-spew/spew
 # github.com/fatih/color v1.9.0
 github.com/fatih/color
+# github.com/hekonsek/aws-session v1.1.0
+github.com/hekonsek/aws-session
 # github.com/hekonsek/osexit v1.1.0
 github.com/hekonsek/osexit
 # github.com/inconshreveable/mousetrap v1.0.0
