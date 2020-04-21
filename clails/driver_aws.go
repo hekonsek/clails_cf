@@ -26,7 +26,14 @@ func (*AwsDriver) Validate(project *Project) error {
 				service.Distribution = "ami"
 			}
 			if service.Distribution != "ami" {
-				return errors.New("unknown Kafka service type: " + service.Distribution)
+				return errors.New("unknown Kafka service distribution: " + service.Distribution)
+			}
+		} else if service.Type == "kubernetes" {
+			if service.Distribution == "" {
+				service.Distribution = "eks-nodegroup"
+			}
+			if service.Distribution != "eks-nodegroup" {
+				return errors.New("unknown kubernetes service distribution: " + service.Distribution)
 			}
 		}
 	}
@@ -44,6 +51,12 @@ func (driver *AwsDriver) GenerateModel(project *Project) (monitoring map[string]
 	for _, env := range project.Environments {
 		resources := map[string]interface{}{}
 		templatesModels[env] = map[string]interface{}{
+			"Parameters" : map[string]map[string]interface{}{
+				"DefaultVpcSubnetsIds" : {
+					"Type" : "CommaDelimitedList",
+					"Default" : "",
+				},
+			},
 			"Resources": resources,
 		}
 
@@ -51,6 +64,12 @@ func (driver *AwsDriver) GenerateModel(project *Project) (monitoring map[string]
 			if service.Type == "kafka" {
 				if service.Distribution == "ami" {
 					resources["KafkaServer"] = kafkaBackingServiceAmi(project, env)
+				}
+			} else if service.Type == "kubernetes" {
+				if service.Distribution == "eks-nodegroup" {
+					for k, v := range eksClusterBackingServiceAmi(project, env) {
+						resources[k] = v
+					}
 				}
 			}
 		}
@@ -97,6 +116,85 @@ func kafkaBackingServiceAmi(project *Project, env string) map[string]interface{}
 			"KeyName":      "default",
 			"Tags": []map[string]string{
 				{"Key": "Name", "Value": fmt.Sprintf("%s-%s-kafka-server", project.Name, env)},
+			},
+		},
+	}
+}
+
+func eksClusterBackingServiceAmi(project *Project, env string) map[string]map[string]interface{} {
+	return map[string]map[string]interface{}{
+		"EksCluster": {
+			"Type": "AWS::EKS::Cluster",
+			"Properties": map[string]interface{}{
+				"Name":    project.Name + "-" + env,
+				"RoleArn": map[string][]string{
+					"Fn::GetAtt":{ "EksClusterRole", "Arn" },
+				},
+				"ResourcesVpcConfig": map[string]interface{}{
+					"SubnetIds": map[string]string{
+						"Ref": "DefaultVpcSubnetsIds",
+					},
+				},
+			},
+		},
+		"EksClusterRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": map[string]interface{}{
+				"RoleName": project.Name + "-EksCluster-" + "-" + env,
+				"AssumeRolePolicyDocument": map[string]interface{}{
+					"Statement": []interface{}{
+						map[string]interface{}{
+							"Sid":    "",
+							"Effect": "Allow",
+							"Principal": map[string]interface{}{
+								"Service": "eks.amazonaws.com",
+							},
+							"Action": []string{"sts:AssumeRole"},
+						},
+					},
+					"Version": "2012-10-17",
+				},
+				"ManagedPolicyArns": []string{
+					"arn:aws:iam::aws:policy/AmazonEKSServicePolicy",
+					"arn:aws:iam::aws:policy/AmazonEKSClusterPolicy",
+				},
+			},
+		},
+		"EksNodeGroup": {
+			"Type": "AWS::EKS::Nodegroup",
+			"Properties": map[string]interface{}{
+				"ClusterName": project.Name + "-" + env,
+				"NodeRole": map[string][]string{
+					"Fn::GetAtt":{ "EksNodeGroupRole", "Arn" },
+				},
+				"Subnets": map[string]string{
+					"Ref": "DefaultVpcSubnetsIds",
+				},
+			},
+			"DependsOn": "EksCluster",
+		},
+		"EksNodeGroupRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": map[string]interface{}{
+				"RoleName": project.Name + "-EksNodeGroup" + "-" + env,
+				"AssumeRolePolicyDocument": map[string]interface{}{
+					"Statement": []interface{}{
+						map[string]interface{}{
+							"Sid":    "",
+							"Effect": "Allow",
+							"Principal": map[string]interface{}{
+								"Service": "ec2.amazonaws.com",
+							},
+							"Action": []string{"sts:AssumeRole"},
+						},
+					},
+					"Version": "2012-10-17",
+				},
+				"ManagedPolicyArns": []string{
+					"arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
+					"arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
+					"arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+				},
 			},
 		},
 	}

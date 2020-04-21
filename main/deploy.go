@@ -2,15 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/fatih/color"
-	"github.com/hekonsek/aws-session"
 	"github.com/hekonsek/clails/clails"
 	"github.com/hekonsek/osexit"
 	"github.com/spf13/cobra"
-	"strings"
 )
-import "github.com/aws/aws-sdk-go/service/cloudformation"
 
 var deployCommandDryRun bool
 
@@ -42,47 +38,21 @@ var deployCommand = &cobra.Command{
 				fmt.Println()
 			}
 		} else {
-			sess, err := aws_session.NewSession()
-			if err != nil {
-				osexit.ExitOnError(err)
-			}
-			cloudformationService := cloudformation.New(sess)
-
-			_, err = cloudformationService.CreateStack(&cloudformation.CreateStackInput{
-				StackName:    aws.String(project.Name + "-monitoring"),
-				TemplateBody: aws.String(monitoring),
-				Capabilities: aws.StringSlice([]string{"CAPABILITY_NAMED_IAM"}),
-			})
-			if err != nil {
-				if isAlreadyExistsException(err) {
-					fmt.Printf("CloudFormation stack for environment named %s already exists. Skipping.\n", color.GreenString(project.Name+"-monitoring"))
-				} else {
+			var deploymentNotifications = make(chan clails.EnvironmentStatus)
+			go func() {
+				err = clails.NewDeployer().Deploy(project, monitoring, templates, deploymentNotifications)
+				if err != nil {
 					osexit.ExitOnError(err)
 				}
-			} else {
-				fmt.Printf("CloudFormation stack %s created.\n", color.GreenString(project.Name+"-monitoring"))
-			}
-
-			for env, template := range templates {
-				_, err = cloudformationService.CreateStack(&cloudformation.CreateStackInput{
-					StackName:    aws.String(project.Name + "-" + env),
-					TemplateBody: aws.String(template),
-					Capabilities: aws.StringSlice([]string{"CAPABILITY_NAMED_IAM"}),
-				})
-				if err != nil {
-					if isAlreadyExistsException(err) {
-						fmt.Printf("CloudFormation stack for environment named %s already exists. Skipping.\n", color.GreenString(project.Name+"-"+env))
-					} else {
-						osexit.ExitOnError(err)
-					}
+			}()
+			for notification := range deploymentNotifications {
+				stackName := fmt.Sprintf("%s-%s", project.Name, notification.Environment)
+				if notification.Succedded {
+					fmt.Printf("CloudFormation stack %s created.\n", color.GreenString(stackName))
 				} else {
-					fmt.Printf("CloudFormation stack %s created.\n", color.GreenString(project.Name+"-"+env))
+					fmt.Printf("CloudFormation stack %s already exists. Skipping.\n", color.GreenString(stackName))
 				}
 			}
 		}
 	},
-}
-
-func isAlreadyExistsException(err error) bool {
-	return strings.HasPrefix(err.Error(), "AlreadyExistsException")
 }
