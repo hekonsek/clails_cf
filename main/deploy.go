@@ -17,10 +17,12 @@ func init() {
 
 var deployCommand = &cobra.Command{
 	Use:   "deploy",
-	Short: "deploy into a cloud",
+	Short: "deploy Cloud Formation stack into AWS",
 	Run: func(cmd *cobra.Command, args []string) {
-		project, err := clails.LoadProjectFromYmlFile("clails.yml")
-		osexit.ExitOnError(err)
+		ymlProject := clails.NewYmlProject()
+		project, err := ymlProject.LoadFromFile("clails.yml")
+		osexit.ExitOnError(ymlProject.FriendlyMessage(err))
+
 		monitoring, templates, err := clails.NewAwsDriver().Generate(project)
 		osexit.ExitOnError(err)
 

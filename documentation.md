@@ -25,7 +25,7 @@ Prometheus and Grafana servers).
 
 ### Dry run deploy
 
-In order to generate CloudFormation template without creating an actual stack in AWS, use `--dry-run` option:
+In order to generate CloudFormation templates without creating an actual stack in AWS, use `--dry-run` option:
 
 ```
 $ clails deploy --dry-run

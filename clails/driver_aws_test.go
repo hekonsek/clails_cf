@@ -9,7 +9,7 @@ import "testing"
 func TestGenerateStagingModel(t *testing.T) {
 	// Given
 	driver := &clails.AwsDriver{}
-	project, err := clails.LoadProjectFromYmlFile("../samples/kafka-ami.yml")
+	project, err := clails.NewYmlProject().LoadFromFile("../samples/kafka-ami.yml")
 	assert.NoError(t, err)
 
 	// When
@@ -23,7 +23,7 @@ func TestGenerateStagingModel(t *testing.T) {
 func TestGenerateMonitoringModel(t *testing.T) {
 	// Given
 	driver := &clails.AwsDriver{}
-	project, err := clails.LoadProjectFromYmlFile("../samples/kafka-ami.yml")
+	project, err := clails.NewYmlProject().LoadFromFile("../samples/kafka-ami.yml")
 	assert.NoError(t, err)
 
 	// When
@@ -37,7 +37,7 @@ func TestGenerateMonitoringModel(t *testing.T) {
 func TestGenerateMonitoringSecurityGroup(t *testing.T) {
 	// Given
 	driver := &clails.AwsDriver{}
-	project, err := clails.LoadProjectFromYmlFile("../samples/kafka.yml")
+	project, err := clails.NewYmlProject().LoadFromFile("../samples/kafka.yml")
 	assert.NoError(t, err)
 
 	// When

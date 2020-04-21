@@ -9,7 +9,7 @@ import (
 
 func TestLoadingNoSuchFile(t *testing.T) {
 	// When
-	_, err := clails.LoadProjectFromYmlFile("noSuchFile.yml")
+	_, err := clails.NewYmlProject().LoadFromFile("noSuchFile.yml")
 
 	// Then
 	assert.Error(t, err)
@@ -18,7 +18,7 @@ func TestLoadingNoSuchFile(t *testing.T) {
 
 func TestLoadingServices(t *testing.T) {
 	// When
-	project, err := clails.LoadProjectFromYmlFile("../samples/kafka-ami.yml")
+	project, err := clails.NewYmlProject().LoadFromFile("../samples/kafka-ami.yml")
 	assert.NoError(t, err)
 
 	// Then

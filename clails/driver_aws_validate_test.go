@@ -9,7 +9,7 @@ import "testing"
 func TestValidationShouldDefaultToAmiKafka(t *testing.T) {
 	// Given
 	driver := clails.NewAwsDriver()
-	project, err := clails.LoadProjectFromYmlFile("../samples/kafka.yml")
+	project, err := clails.NewYmlProject().LoadFromFile("../samples/kafka.yml")
 	assert.NoError(t, err)
 
 	// When
@@ -23,7 +23,7 @@ func TestValidationShouldDefaultToAmiKafka(t *testing.T) {
 func TestValidationShouldDefaultToStagingAndProductionEnvironments(t *testing.T) {
 	// Given
 	driver := clails.NewAwsDriver()
-	project, err := clails.LoadProjectFromYmlFile("../samples/kafka.yml")
+	project, err := clails.NewYmlProject().LoadFromFile("../samples/kafka.yml")
 	assert.NoError(t, err)
 
 	// When
